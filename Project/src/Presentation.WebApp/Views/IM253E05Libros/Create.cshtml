@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Crear Nuevo Libro";
+}
+@model Domain.IM253E05Libro
+@using Application
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="bi bi-book"></i> Nuevo Libro</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Autor" class="form-label">Autor *</label>
+                        <input asp-for="Autor" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese el autor</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Editorial" class="form-label">Editorial</label>
+                        <input asp-for="Editorial" class="form-control" />
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="ISBN" class="form-label">ISBN *</label>
+                        <input asp-for="ISBN" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese el ISBN</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">Vista previa de portada</label>
+                        <div class="border p-2 text-center">
+                            <img id="imagePreview" src="@FileConverterService.PlaceHolder" 
+                                 alt="Vista previa" 
+                                 style="max-height: 150px; max-width: 100%;" 
+                                 class="img-thumbnail" />
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <label for="file" class="form-label">Portada (opcional)</label>
+                        <input type="file" name="file" id="fileInput" class="form-control" 
+                               accept=".jpg,.png,.jpeg,.gif" />
+                        <small class="text-muted">Formatos: JPG, PNG, JPEG, GIF (max 2MB)</small>
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Libro
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').src = '@FileConverterService.PlaceHolder';
+            }
+        });
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+}

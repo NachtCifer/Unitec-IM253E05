@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+@model Domain.IM253E05Usuario
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="bi bi-person-gear"></i> Editar Usuario</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" class="needs-validation" novalidate>
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Nombre" class="form-label">Nombre completo</label>
+                        <input asp-for="Nombre" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese el nombre</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Correo" class="form-label">Correo electrónico</label>
+                        <input asp-for="Correo" type="email" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese un correo válido</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Direccion" class="form-label">Dirección</label>
+                        <input asp-for="Direccion" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese la dirección</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Telefono" class="form-label">Teléfono</label>
+                        <input asp-for="Telefono" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese el teléfono</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Actualizar
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+}

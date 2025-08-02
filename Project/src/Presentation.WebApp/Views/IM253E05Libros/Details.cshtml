@@ -1,0 +1,34 @@
+@{
+    Layout = null;
+}
+@model Domain.IM253E05Libro
+@using Application
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <dl class="row">
+                <dt class="col-sm-3">ID:</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
+
+                <dt class="col-sm-3">Autor:</dt>
+                <dd class="col-sm-9">@Model.Autor</dd>
+
+                <dt class="col-sm-3">Editorial:</dt>
+                <dd class="col-sm-9">@Model.Editorial</dd>
+
+                <dt class="col-sm-3">ISBN:</dt>
+                <dd class="col-sm-9">@Model.ISBN</dd>
+
+                <dt class="col-sm-3">Foto:</dt>
+                <dd class="col-sm-9">
+                    <img src="@(string.IsNullOrEmpty(Model.Foto) ? FileConverterService.PlaceHolder : Model.Foto)" 
+                         alt="Portada del libro" 
+                         style="max-height: 200px; max-width: 100%;" 
+                         class="img-thumbnail"
+                         onerror="this.onerror=null;this.src='@FileConverterService.PlaceHolder'" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,75 @@
+@{
+    Layout = null;
+}
+@model Domain.IM253E05Prestamos
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Detalles del Préstamo #@Model.Id</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary"><i class="bi bi-person"></i> Información del Usuario</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Usuario:</dt>
+                                <dd class="col-sm-8">@Model.Usuario?.Nombre</dd>
+                            </dl>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-primary"><i class="bi bi-book"></i> Información del Libro</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Autor:</dt>
+                                <dd class="col-sm-8">@Model.Libro?.Autor</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6 class="text-primary"><i class="bi bi-calendar-event"></i> Fechas</h6>
+                            <dl class="row">
+                                <dt class="col-sm-2">Préstamo:</dt>
+                                <dd class="col-sm-4">@Model.FechaPrestamo.ToShortDateString()</dd>
+                                
+                                <dt class="col-sm-2">Devolución:</dt>
+                                <dd class="col-sm-4">
+                                    @if (Model.FechaDevolucion.HasValue)
+                                    {
+                                        @Model.FechaDevolucion.Value.ToShortDateString()
+                                    }
+                                    else
+                                    {
+                                        <span class="text-warning">Pendiente</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-2">Estado:</dt>
+                                <dd class="col-sm-4">
+                                    @if (Model.FechaDevolucion.HasValue && Model.FechaDevolucion.Value.Date < DateTime.Now.Date)
+                                    {
+                                        <span class="badge bg-danger">Atrasado</span>
+                                    }
+                                    else if (Model.FechaDevolucion.HasValue)
+                                    {
+                                        <span class="badge bg-success">Devuelto</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Prestado</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

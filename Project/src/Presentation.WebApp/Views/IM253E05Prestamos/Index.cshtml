@@ -1,0 +1,222 @@
+@{
+    ViewData["Title"] = "Lista de Préstamos";
+}
+@model List<Domain.IM253E05Prestamos>
+
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Lista de Préstamos</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nuevo Préstamo
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header py-3">
+            <div class="row">
+                <div class="col-md-6" id="toolbar"></div>
+                <div class="col-md-6" id="filterContainer"></div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="prestamosTable" class="table table-striped table-hover w-100">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Libro (Autor)</th>
+                        <th>Fecha Préstamo</th>
+                        <th>Fecha Devolución</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+@foreach (var p in Model)
+{
+    var vencimiento = p.FechaPrestamo.AddDays(7);
+
+    <tr>
+        <td>@p.Usuario?.Nombre</td>
+        <td>@p.Libro?.Autor</td>
+        <td>@p.FechaPrestamo.ToShortDateString()</td>
+        <td>@(p.FechaDevolucion?.ToShortDateString() ?? "Pendiente")</td>
+        <td>
+            @if (!p.FechaDevolucion.HasValue && vencimiento < DateTime.Now.Date)
+            {
+                <span class="badge bg-danger">Atrasado</span>
+            }
+            else if (p.FechaDevolucion.HasValue)
+            {
+                <span class="badge bg-success">Devuelto</span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark">Prestado</span>
+            }
+        </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button onclick="showDetails('@p.Id')" class="btn btn-info">
+                                        <i class="bi bi-eye"></i> Detalles
+                                    </button>
+                                    <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <button onclick="Delete('@p.Id')" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="eliminarModal" tabindex="-1" aria-labelledby="eliminarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="eliminarModalLabel">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro que deseas eliminar este préstamo? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <a id="eliminar-btn" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Eliminar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Detalles del Préstamo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="detallesModalContent" class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#prestamosTable').DataTable({
+                dom: "<'row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-excel"></i> Excel',
+                        className: 'btn btn-success btn-sm',
+                        title: 'Listado_Préstamos',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4] 
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="bi bi-file-pdf"></i> PDF',
+                        className: 'btn btn-danger btn-sm',
+                        title: 'Listado_Préstamos',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Imprimir',
+                        className: 'btn btn-secondary btn-sm',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    }
+                ],
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+                },
+                responsive: true,
+                columnDefs: [
+                    { 
+                        targets: 5,
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                initComplete: function() {
+                    $('.dt-buttons').appendTo('#toolbar');
+                    $('.dataTables_filter').addClass('float-end');
+                }
+            });
+        });
+
+        function Delete(id) {
+            const modal = new bootstrap.Modal(document.getElementById('eliminarModal'));
+            document.getElementById('eliminar-btn').href = `/IM253E05Prestamos/Delete?id=${id}`;
+            modal.show();
+        }
+
+        function showDetails(id) {
+            $('#detailsModal').modal('show');
+            $("#detallesModalContent").html(`
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2">Cargando detalles del préstamo...</p>
+                </div>
+            `);
+            
+            $.ajax(`/IM253E05Prestamos/Details/${id}`)
+                .done(function(data) {
+                    $("#detallesModalContent").html(data);
+                })
+                .fail(function() {
+                    $("#detallesModalContent").html(`
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 
+                            Error al cargar los detalles. Intente nuevamente.
+                        </div>
+                        <button onclick="showDetails('${id}')" class="btn btn-primary mt-2">
+                            <i class="bi bi-arrow-clockwise"></i> Reintentar
+                        </button>
+                    `);
+                });
+        }
+    </script>
+}

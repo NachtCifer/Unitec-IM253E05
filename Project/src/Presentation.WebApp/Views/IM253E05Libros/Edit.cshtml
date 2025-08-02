@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Editar Libro";
+}
+@model Domain.IM253E05Libro
+@using Application
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h2 class="mb-0"><i class="bi bi-book-half"></i> Editar Libro</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <input asp-for="Id" type="hidden" />
+                <input asp-for="Foto" type="hidden" />
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Autor" class="form-label">Autor *</label>
+                        <input asp-for="Autor" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese el autor</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="Editorial" class="form-label">Editorial</label>
+                        <input asp-for="Editorial" class="form-control" />
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label asp-for="ISBN" class="form-label">ISBN *</label>
+                        <input asp-for="ISBN" class="form-control" required />
+                        <div class="invalid-feedback">Por favor ingrese el ISBN</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label">Portada actual</label>
+                        <div class="border p-2 text-center">
+                            <img src="@(string.IsNullOrEmpty(Model.Foto) ? FileConverterService.PlaceHolder : Model.Foto)" 
+                                 alt="Portada actual" 
+                                 class="img-thumbnail" 
+                                 style="max-height: 150px;"
+                                 onerror="this.onerror=null;this.src='@FileConverterService.PlaceHolder'" />
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="removeImage" name="removeImage" />
+                            <label class="form-check-label" for="removeImage">Eliminar imagen actual</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <label for="file" class="form-label">Nueva portada (opcional)</label>
+                        <input type="file" name="file" class="form-control" 
+                               accept=".jpg,.png,.jpeg,.gif" />
+                        <small class="text-muted">Formatos: JPG, PNG, GIF (max 2MB)</small>
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Actualizar
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+}
